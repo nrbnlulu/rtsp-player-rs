@@ -1,0 +1,7 @@
+[workspace]
+
+members = ["example", "rtsp-player-rs"]
+
+[workspace.dependencies]
+
+anyhow = "1.0.95"
