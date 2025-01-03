@@ -10,7 +10,13 @@ gst-gl-egl = { package = "gstreamer-gl-egl", git = "https://gitlab.freedesktop.o
 gst-gl-wayland = { package = "gstreamer-gl-wayland", git = "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs", branch = "main" }
 gst-rtp = { package = "gstreamer-rtp", git = "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs", branch = "main" }
 gst-video = { package = "gstreamer-video", git = "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs", branch = "main" }
+gst-app = { package = "gstreamer-app", git = "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs", branch = "main" }
 anyhow = {workspace = true}
+chrono = "0.4.39"
+num-derive = "0.4.2"
+num-traits = "0.2.19"
+libloading = "0.8.6"
+log = "0.4.22"
 
 
 
