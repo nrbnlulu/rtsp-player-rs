@@ -1,5 +1,5 @@
 // inspired by https://github.com/momentobooth/momentobooth/blob/main/rust/src/utils/flutter_texture.rs
-use crate::models::images::RawImage;
+use crate::dtos::images::RawImage;
 use libloading::{
     Library, Symbol, Error as LibError
 };
