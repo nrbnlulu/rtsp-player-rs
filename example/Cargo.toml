@@ -4,5 +4,15 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-gtk = { version = "0.9.5", package = "gtk4", features = ["v4_12"] }
 rtsp-player-rs = { version = "0.1.0", path = "../rtsp-player-rs" }
+anyhow = {workspace = true}
+gst ={ workspace = true }
+gstgtk4 = {git = "https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git",package = "gst-plugin-gtk4", branch = "main"}
+gstreamer = "0.23.4"
+
+
+[dependencies.gtk]
+package = "gtk4"
+git = "https://github.com/gtk-rs/gtk4-rs"
+branch = "main"
+features = ["v4_6"]

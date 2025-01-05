@@ -1,15 +1,22 @@
-use std::{ sync::{Arc, Mutex}};
+use std::sync::{Arc, Mutex};
 
 use anyhow::anyhow;
 use derive_more::{Display, Error};
 
-use flutter_texture::FlutterTexture;
-use gst::{element_error, glib::{self, ffi::GTuples, property::PropertyGet}, prelude::ElementExt, Element, ElementFactory};
-use gst_gl::prelude::*;
 use crate::models::context::{GlApi, GlContext, PlayerGLContext};
+use flutter_texture::FlutterTexture;
+use gst::{
+    element_error,
+    glib::{self, ffi::GTuples, property::PropertyGet},
+    prelude::ElementExt,
+    Element, ElementFactory,
+};
+use gst_gl::prelude::*;
+use utils::make_gs_element;
 
 pub mod flutter_texture;
 pub mod models;
+pub mod utils;
 
 // inspirations:
 // - https://github.com/freskog/google-camera-proxy/blob/a922149166526585fe86ec2f5f29c19cb5b6f586/src/main.rs#L325
@@ -17,8 +24,6 @@ pub mod models;
 // `gst-launch-1.0 rtspsrc location=rtsp://localhost:8554/test latency=100 ! queue ! rtph264depay
 //  ! h264parse ! avdec_h264 ! videoconvert ! videoscale ! video/x-raw,width=640,height=480 ! autovideosink`
 // - https://github.com/servo/media/tree/5f4c4066cb4793179adcfd678be63328de8ccbda/backends/gstreamer
-
-
 
 pub fn init_gst() -> anyhow::Result<()> {
     // Set up main loop
@@ -43,8 +48,6 @@ struct ErrorMessage {
 #[display("Could not get mount points")]
 struct NoMountPoints;
 
-
-
 enum Transport {
     TCP,
     UDP,
@@ -53,16 +56,8 @@ enum Transport {
 #[boxed_type(name = "ErrorValue")]
 struct ErrorValue(Arc<Mutex<Option<anyhow::Error>>>);
 
-fn make_element(factory_name: &str) -> anyhow::Result<Element> {
-    Ok(ElementFactory::make(factory_name).build()?)
-}
-
-fn make_named_element(factory_name: &str, name: &str) -> anyhow::Result<Element> {
-    Ok(ElementFactory::make(factory_name).property("name", name).build()?)
-}
-
 fn make_queue(name: &str, max_size: u32) -> anyhow::Result<Element> {
-    let queue = make_element("queue")?;
+    let queue = make_gs_element("queue")?;
     queue.set_property("max-size-buffers", &max_size);
     queue.set_property("max-size-bytes", &max_size);
     queue.set_property("name", name);
@@ -71,7 +66,11 @@ fn make_queue(name: &str, max_size: u32) -> anyhow::Result<Element> {
 
 fn use_testsrc(uri: String, texture: FlutterTexture) -> anyhow::Result<()> {
     // Create a GStreamer pipeline
-    let pipeline = Arc::new(gst::Pipeline::builder().name(format!("rtsp pipeline {}", uri)).build());
+    let pipeline = Arc::new(
+        gst::Pipeline::builder()
+            .name(format!("rtsp pipeline {}", uri))
+            .build(),
+    );
     let pipeline_clone = pipeline.clone();
     let source = gst::ElementFactory::make("rtspsrc")
         .property("location", uri)
@@ -81,21 +80,23 @@ fn use_testsrc(uri: String, texture: FlutterTexture) -> anyhow::Result<()> {
         .property("do-rtsp-keep-alive", true)
         .property("debug", true)
         .build()?;
-    let queue = Arc::new(Mutex::new(make_element("queue")?));
-    let rtph264depay = make_element("rtph264depay")?;
-    let h264parse = make_element("h264parse")?;
-    let avdec_h264 = make_element("avdec_h264")?;
+    let queue = Arc::new(Mutex::new(make_gs_element("queue")?));
+    let rtph264depay = make_gs_element("rtph264depay")?;
+    let h264parse = make_gs_element("h264parse")?;
+    let avdec_h264 = make_gs_element("avdec_h264")?;
     let glupload = gst::ElementFactory::make("glupload").build()?;
     let glimagesink = gst::ElementFactory::make("glimagesink").build()?;
     {
         let queue_ = queue.lock().unwrap();
-        pipeline_clone.add_many(&[&source,
+        pipeline_clone.add_many(&[
+            &source,
             &*queue_,
             &rtph264depay,
             &h264parse,
             &avdec_h264,
             &glupload,
-            &glimagesink])?;
+            &glimagesink,
+        ])?;
         drop(queue_);
     }
 
@@ -110,8 +111,6 @@ fn use_testsrc(uri: String, texture: FlutterTexture) -> anyhow::Result<()> {
             println!("Received pad with media type: {:?}", src_media_type);
             let queue = queue.lock().unwrap();
 
-
-          
             // Initialize GL display
             let gl_display = gst_gl::GLDisplay::default();
 
@@ -123,7 +122,8 @@ fn use_testsrc(uri: String, texture: FlutterTexture) -> anyhow::Result<()> {
                     gst_gl::GLPlatform::EGL,
                     gst_gl::GLAPI::GLES2,
                 )
-            }.ok_or_else(|| anyhow!("Failed to create GL context"))?;
+            }
+            .ok_or_else(|| anyhow!("Failed to create GL context"))?;
             gl_context.activate(true)?;
             glimagesink.set_property("context", &gl_context);
 
@@ -175,7 +175,7 @@ fn use_testsrc(uri: String, texture: FlutterTexture) -> anyhow::Result<()> {
                         debug: err.debug().map(|d| d.to_string()),
                         source: err.error(),
                     }
-                        .into()),
+                    .into()),
                 }?;
             }
             MessageView::StateChanged(s) => {
@@ -242,13 +242,13 @@ pub fn rtsp_to_gl_pipeline(uri: String, texture: FlutterTexture) -> anyhow::Resu
                 println!("ignoring pad with wrong media_type: {}", media_type);
                 return Ok(());
             }
-         
+
             let rtph264depay = gst::ElementFactory::make("rtph264depay").build()?;
             let h264parse = gst::ElementFactory::make("h264parse").build()?;
             let avdec_h264 = gst::ElementFactory::make("avdec_h264").build()?;
             let glupload = gst::ElementFactory::make("glupload").build()?;
             let glsinkbin = gst::ElementFactory::make("glsinkbin").build()?;
-                // Initialize GL display
+            // Initialize GL display
             let gl_display = gst_gl::GLDisplay::default();
 
             // Set up the GL context
@@ -259,9 +259,9 @@ pub fn rtsp_to_gl_pipeline(uri: String, texture: FlutterTexture) -> anyhow::Resu
                     gst_gl::GLPlatform::EGL,
                     gst_gl::GLAPI::GLES2,
                 )
-            }.ok_or_else(|| anyhow!("Failed to create GL context"))?;
+            }
+            .ok_or_else(|| anyhow!("Failed to create GL context"))?;
             gl_context.activate(true)?;
-
 
             let elements = &[
                 &videoqueue,
@@ -383,7 +383,6 @@ pub fn rtsp_to_gl_pipeline(uri: String, texture: FlutterTexture) -> anyhow::Resu
     Ok(())
 }
 
-
 enum VideoEncodeType {
     H264,
     H265,
@@ -405,7 +404,6 @@ fn media_type_of(pad: &gst::Pad) -> anyhow::Result<String> {
     }
     Err(anyhow!("No media field on pad"))
 }
-
 
 pub struct RenderUnix {
     display: gst_gl::GLDisplay,
@@ -451,8 +449,8 @@ impl RenderUnix {
                     NativeDisplay::Wayland(display_native) => unsafe {
                         gstreamer_gl_wayland::GLDisplayWayland::with_display(display_native)
                     }
-                        .map(|display| display.upcast())
-                        .ok(),
+                    .map(|display| display.upcast())
+                    .ok(),
                     _ => None,
                 };
 

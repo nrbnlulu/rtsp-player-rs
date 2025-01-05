@@ -2,6 +2,7 @@
 use glib::Object;
 use gtk::glib;
 mod imp;
+pub mod render;
 
 
 glib::wrapper! {
