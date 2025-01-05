@@ -24,7 +24,6 @@ fn main() -> glib::ExitCode {
         let widget = RtspGlArea::new();
 
         window.set_child(Some(&widget));
-
         // Show the window.
         window.present();
     });
