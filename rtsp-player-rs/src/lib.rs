@@ -4,7 +4,7 @@ use anyhow::anyhow;
 use derive_more::{Display, Error};
 
 use flutter_texture::FlutterTexture;
-use gst::{element_error, glib, prelude::ElementExt, Element};
+use gst::{element_error, glib::{self, ffi::GTuples}, prelude::ElementExt, Element, ElementFactory};
 use gst_gl::prelude::*;
 pub mod flutter_texture;
 pub mod models;
@@ -51,8 +51,63 @@ enum Transport {
 #[boxed_type(name = "ErrorValue")]
 struct ErrorValue(Arc<Mutex<Option<anyhow::Error>>>);
 
-pub fn rtsp_to_gl_pipeline(uri: String, texture: FlutterTexture) -> anyhow::Result<()> {
+fn make_element(factory_name: &str) -> anyhow::Result<Element> {
+    Ok(ElementFactory::make(factory_name).build()?)
+}
 
+fn make_queue(name: &str, max_size: u32) -> anyhow::Result<Element> {
+    let queue = make_element("queue")?;
+    queue.set_property("max-size-buffers", &max_size);
+    queue.set_property("max-size-bytes", &max_size);
+    queue.set_property("name", name);
+    Ok(queue)
+}
+
+fn use_testsrc(texture: FlutterTexture) -> anyhow::Result<()> {
+    // Create a GStreamer pipeline
+    let pipeline = gst::Pipeline::default();
+    let source = make_element("videotestsrc")?;
+    source.set_property("num-buffers", 500i32); // Send buffers then EOS
+    let queue = make_queue("queue0", 1024 * 1024 * 4)?;
+
+
+    let glupload = gst::ElementFactory::make("glupload").build()?;
+    let glsinkbin = gst::ElementFactory::make("glimagesink").build()?;
+        // Initialize GL display
+    let gl_display = gst_gl::GLDisplay::default();
+
+    // Set up the GL context
+    let gl_context = unsafe {
+        gst_gl::GLContext::new_wrapped(
+            &gl_display,
+            texture.ptr,
+            gst_gl::GLPlatform::EGL,
+            gst_gl::GLAPI::GLES2,
+        )
+    }.ok_or_else(|| anyhow!("Failed to create GL context"))?;
+        
+    pipeline.add_many(&[&source, &queue,  &glupload, &glsinkbin])?;
+    source.link_filtered(
+        &queue,
+        &gst::Caps::builder("video/x-raw")
+            .field("format", "YUY2")
+            .field("width", 896i32)
+            .field("height", 512i32)
+            .field("framerate", gst::Fraction::new(25, 1))
+            .build(),
+    )?;
+    queue.link(&glupload)?;
+    glupload.link(&glsinkbin)?;
+    
+    
+    // Start the pipeline
+    pipeline.set_state(gst::State::Playing)?;
+
+    Ok(())
+}
+
+pub fn rtsp_to_gl_pipeline(uri: String, texture: FlutterTexture) -> anyhow::Result<()> {
+    return use_testsrc(texture);
     let pipeline = gst::Pipeline::default();
 
     let rtspsrc = gst::ElementFactory::make("rtspsrc")
@@ -117,6 +172,7 @@ pub fn rtsp_to_gl_pipeline(uri: String, texture: FlutterTexture) -> anyhow::Resu
                     gst_gl::GLAPI::GLES2,
                 )
             }.ok_or_else(|| anyhow!("Failed to create GL context"))?;
+            gl_context.activate(true)?;
 
 
             let elements = &[

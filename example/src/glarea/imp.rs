@@ -38,21 +38,23 @@ impl WidgetImpl for RtspGlArea {
 
 impl GLAreaImpl for RtspGlArea {
     fn render(&self, _context: &GLContext) -> glib::Propagation {
-        _context.make_current();
-        // render
-        let gl_context_ptr = unsafe { gdk_gl_context_get_current() };
-        let flutter_ctx = FlutterTexture::new(
-            gl_context_ptr as usize,
-            640,
-            480,
-        );
-        thread::spawn(move ||{
-            rtsp_to_gl_pipeline(
-                "rtsp://admin:camteam524@31.154.52.236:10500/main".to_string(),
-                flutter_ctx,
-            ).unwrap();
-        });
-        
-        glib::Propagation::Stop
-    }
+            _context.make_current();
+            // render
+            let gl_context_ptr = unsafe { gdk_gl_context_get_current() };
+            let gl_context_ptr = gl_context_ptr as usize;
+            thread::spawn(move ||{
+                if let Err(e) = rtsp_to_gl_pipeline(
+                    "rtsp://admin:camteam524@192.168.3.71:10500/main".to_string(),
+                    FlutterTexture::new(
+                        gl_context_ptr,
+                        640,
+                        480,
+                    ),
+                ) {
+                    eprintln!("Failed to start RTSP pipeline: {:?}", e);
+                }
+            });
+
+            glib::Propagation::Stop
+        }
 }

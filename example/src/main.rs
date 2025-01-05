@@ -16,8 +16,8 @@ fn main() -> glib::ExitCode {
         
         let window = ApplicationWindow::builder()
             .application(app)
-            .default_width(320)
-            .default_height(200)
+            .default_width(800)
+            .default_height(600)
             .title("Hello, World!")
             .build();
 
