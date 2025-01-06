@@ -3,9 +3,9 @@
 /// Copyright © 2021 & onwards, Hitesh Kumar Saini <saini123hitesh@gmail.com>.
 /// All rights reserved.
 /// Use of this source code is governed by MIT license that can be found in the LICENSE file.
-import 'package:media_kit/media_kit.dart';
-
-import 'package:media_kit_video/src/video_controller/platform_video_controller.dart';
+import 'package:flutter_gstreamer/managers/backends/native_streamer.dart';
+import 'package:flutter_gstreamer/managers/player.dart';
+import 'package:flutter_gstreamer/video/controller/platform_video_controller.dart';
 
 // Stub declaration for avoiding compilation errors on Dart JS using conditional imports.
 
@@ -18,7 +18,7 @@ class NativeVideoController extends PlatformVideoController {
   );
 
   static Future<PlatformVideoController> create(
-    Player player,
+    NativePlayer player,
     VideoControllerConfiguration configuration,
   ) =>
       throw UnimplementedError();

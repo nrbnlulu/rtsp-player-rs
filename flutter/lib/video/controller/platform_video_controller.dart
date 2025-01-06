@@ -5,10 +5,9 @@
 /// Use of this source code is governed by MIT license that can be found in the LICENSE file.
 import 'dart:async';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_gstreamer/managers/backends/native_streamer.dart';
+import 'package:flutter_gstreamer/managers/player.dart';
 
-import 'package:media_kit/media_kit.dart';
-
-import 'package:media_kit_video/src/video_controller/video_controller.dart';
 
 /// {@template platform_video_controller}
 ///
@@ -22,8 +21,8 @@ import 'package:media_kit_video/src/video_controller/video_controller.dart';
 ///
 /// {@endtemplate}
 abstract class PlatformVideoController {
-  /// The [Player] instance associated with this instance.
-  final Player player;
+  /// The [NativePlayer] instance associated with this instance.
+  final NativePlayer player;
 
   /// User defined configuration for [VideoController].
   final VideoControllerConfiguration configuration;

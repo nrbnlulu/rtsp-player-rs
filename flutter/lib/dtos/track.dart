@@ -11,7 +11,7 @@ import 'package:collection/collection.dart';
 /// -----
 ///
 /// A video, audio or subtitle track available in [Media].
-/// This may be selected for output in [Player].
+/// This may be selected for output in [NativePlayer].
 ///
 /// {@endtemplate}
 abstract class _Track {
@@ -101,7 +101,7 @@ abstract class _Track {
 /// ----------
 ///
 /// A video available in [Media].
-/// This may be selected for output in [Player].
+/// This may be selected for output in [NativePlayer].
 /// {@endtemplate}
 class VideoTrack extends _Track {
   /// {@macro video_track}
@@ -138,7 +138,7 @@ class VideoTrack extends _Track {
 /// ----------
 ///
 /// An audio available in [Media].
-/// This may be selected for output in [Player].
+/// This may be selected for output in [NativePlayer].
 /// {@endtemplate}
 class AudioTrack extends _Track {
   /// Whether the audio track is loaded from URI.
@@ -210,7 +210,7 @@ class AudioTrack extends _Track {
 /// -------------
 ///
 /// A subtitle available in [Media].
-/// This may be selected for output in [Player].
+/// This may be selected for output in [NativePlayer].
 /// {@endtemplate}
 class SubtitleTrack extends _Track {
   /// Whether the subtitle track is loaded from URI.

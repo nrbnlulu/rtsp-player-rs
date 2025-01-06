@@ -22,17 +22,17 @@ import 'package:collection/collection.dart';
 /// PlatformPlayer
 /// --------------
 ///
-/// This class provides the interface for platform specific [Player] implementations.
+/// This class provides the interface for platform specific [NativePlayer] implementations.
 /// The platform specific implementations are expected to implement the methods accordingly.
 ///
-/// The subclasses are then used in composition with the [Player] class, based on the platform the application is running on.
+/// The subclasses are then used in composition with the [NativePlayer] class, based on the platform the application is running on.
 ///
 /// {@endtemplate}
-abstract class PlatformPlayer {
+abstract class IPlatformPlayer {
   /// {@macro platform_player}
-  PlatformPlayer({required this.configuration});
+  IPlatformPlayer({required this.configuration});
 
-  /// User defined configuration for [Player].
+  /// User defined configuration for [NativePlayer].
   final PlayerConfiguration configuration;
 
   /// Current state of the player.
@@ -382,7 +382,7 @@ abstract class PlatformPlayer {
 ///
 /// PlayerConfiguration
 /// --------------------
-/// Configurable options for customizing the [Player] behavior.
+/// Configurable options for customizing the [NativePlayer] behavior.
 ///
 /// {@endtemplate}
 class PlayerConfiguration {
@@ -413,12 +413,12 @@ class PlayerConfiguration {
   /// Default: `null`.
   final String title;
 
-  /// Optional callback invoked when the internals of the [Player] are initialized & ready for playback.
+  /// Optional callback invoked when the internals of the [NativePlayer] are initialized & ready for playback.
   ///
   /// Default: `null`.
   final void Function()? ready;
 
-  /// Whether [Player] must be started in muted state.
+  /// Whether [NativePlayer] must be started in muted state.
   ///
   /// Default: `false`.
   final bool muted;
@@ -473,7 +473,7 @@ class PlayerConfiguration {
 ///
 /// MPVLogLevel
 /// --------------------
-/// Options to customise the [Player] native backend log level.
+/// Options to customise the [NativePlayer] native backend log level.
 ///
 /// {@endtemplate}
 enum MPVLogLevel {

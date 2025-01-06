@@ -75,5 +75,4 @@ class NativeReferenceHolder {
   /// [Pointer] to the reference buffer.
   late final Pointer<IntPtr> _referenceBuffer;
 
-  static const String kTag = 'media_kit: NativeReferenceHolder:';
 }

@@ -5,9 +5,10 @@
 /// Use of this source code is governed by MIT license that can be found in the LICENSE file.
 import 'dart:async';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_gstreamer/managers/backends/native_streamer.dart';
+import 'package:flutter_gstreamer/managers/player.dart';
 import 'package:flutter_gstreamer/video/controller/native_video_controller/real.dart';
 import 'package:flutter_gstreamer/video/controller/platform_video_controller.dart';
-
 
 /// {@template video_controller}
 ///
@@ -15,12 +16,12 @@ import 'package:flutter_gstreamer/video/controller/platform_video_controller.dar
 /// ---------------
 ///
 /// [VideoController] is used to initialize & display video output.
-/// It takes reference to existing [Player] instance from `package:media_kit`.
+/// It takes reference to existing [NativePlayer] instance from `package:media_kit`.
 ///
 /// Passing [VideoController] to [Video] widget will cause the video output to be displayed.
 ///
 /// ```dart
-/// late final player = Player();
+/// late final player = NativePlayer();
 /// late final controller = VideoController(player);
 /// ```
 ///
@@ -49,8 +50,8 @@ import 'package:flutter_gstreamer/video/controller/platform_video_controller.dar
 ///
 /// {@endtemplate}
 class VideoController {
-  /// The [Player] instance associated with this [VideoController].
-  final Player player;
+  /// The [NativePlayer] instance associated with this [VideoController].
+  final NativePlayer player;
 
   /// Platform specific internal implementation initialized depending upon the current platform.
   final platform = Completer<PlatformVideoController>();
@@ -68,9 +69,9 @@ class VideoController {
   VideoController(
     this.player, {
     VideoControllerConfiguration configuration =
-        const VideoControllerConfiguration(),
+        const VideoControllerConfiguration()
   }) {
-    player.platform?.isVideoControllerAttached = true;
+    player.isVideoControllerAttached = true;
 
     () async {
       final completer = Completer();
@@ -97,8 +98,8 @@ class VideoController {
           fn1();
           controller.id.addListener(fn0);
           controller.rect.addListener(fn1);
-          // Remove listeners upon [Player.dispose].
-          player.platform?.release.add(() async {
+          // Remove listeners upon [NativePlayer.dispose].
+          player.release.add(() async {
             controller.id.removeListener(fn0);
             controller.rect.removeListener(fn1);
           });
@@ -115,8 +116,8 @@ class VideoController {
         debugPrint(stacktrace.toString());
       }
 
-      if (!(player.platform?.videoControllerCompleter.isCompleted ?? true)) {
-        player.platform?.videoControllerCompleter.complete();
+      if (!(player.videoControllerCompleter.isCompleted ?? true)) {
+        player.videoControllerCompleter.complete();
       }
     }();
   }

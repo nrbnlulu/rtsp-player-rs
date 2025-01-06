@@ -10,17 +10,15 @@ import 'package:flutter_gstreamer/dtos/player_log.dart';
 import 'package:flutter_gstreamer/dtos/track.dart';
 import 'package:flutter_gstreamer/dtos/video_params.dart';
 
-
 /// {@template player_stream}
 ///
 /// PlayerStream
 /// ------------
 ///
-/// Event [Stream]s for subscribing to [Player] events.
+/// Event [Stream]s for subscribing to [NativePlayer] events.
 ///
 /// {@endtemplate}
 class PlayerStream {
-
   /// Whether playing or not.
   final Stream<bool> playing;
 
@@ -51,7 +49,6 @@ class PlayerStream {
 
   /// Current buffering percentage
   final Stream<double> bufferingPercentage;
-
 
   /// Audio parameters of the currently playing [Media].
   /// e.g. sample rate, channels, etc.

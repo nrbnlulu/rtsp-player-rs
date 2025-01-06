@@ -1,5 +1,6 @@
 import 'package:flutter_gstreamer/dtos/audio_device.dart';
 import 'package:flutter_gstreamer/dtos/audio_params.dart';
+import 'package:flutter_gstreamer/dtos/playable.dart';
 import 'package:flutter_gstreamer/dtos/track.dart';
 import 'package:flutter_gstreamer/dtos/video_params.dart';
 
@@ -14,11 +15,12 @@ import 'package:flutter_gstreamer/dtos/video_params.dart';
 /// PlayerState
 /// -----------
 ///
-/// Instantaneous state of the [Player].
+/// Instantaneous state of the [NativePlayer].
 ///
 /// {@endtemplate}
 class PlayerState {
-  /// Currently opened [Media]s.
+  /// Currently opened [Playable].
+  final Playable? playable;
 
   /// Whether playing or not.
   final bool playing;
@@ -50,8 +52,6 @@ class PlayerState {
 
   /// Current buffering percentage
   final double bufferingPercentage;
-
-
 
   /// Audio parameters of the currently playing [Media].
   /// e.g. sample rate, channels, etc.
@@ -87,6 +87,7 @@ class PlayerState {
 
   /// {@macro player_state}
   const PlayerState({
+    this.playable,
     this.playing = false,
     this.completed = false,
     this.position = Duration.zero,
@@ -110,6 +111,7 @@ class PlayerState {
   });
 
   PlayerState copyWith({
+    Playable? playable,
     bool? playing,
     bool? completed,
     Duration? position,
@@ -132,6 +134,7 @@ class PlayerState {
     List<String>? subtitle,
   }) {
     return PlayerState(
+      playable: playable ?? this.playable,
       playing: playing ?? this.playing,
       completed: completed ?? this.completed,
       position: position ?? this.position,
@@ -156,7 +159,7 @@ class PlayerState {
   }
 
   @override
-  String toString() => 'Player('
+  String toString() => 'NativePlayer('
       'playing: $playing, '
       'completed: $completed, '
       'position: $position, '

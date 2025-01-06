@@ -8,10 +8,11 @@ import 'dart:async';
 import 'dart:collection';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_gstreamer/dtos/video_params.dart';
+import 'package:flutter_gstreamer/managers/backends/native_streamer.dart';
+import 'package:flutter_gstreamer/managers/player.dart';
 import 'package:flutter_gstreamer/video/controller/platform_video_controller.dart';
 import 'package:synchronized/synchronized.dart';
-
-
 
 /// {@template native_video_controller}
 ///
@@ -48,7 +49,7 @@ class NativeVideoController extends PlatformVideoController {
   /// [Lock] used to synchronize [onLoadHooks], [onUnloadHooks] & [subscription].
   final lock = Lock();
 
-  NativePlayer get platform => player.platform as NativePlayer;
+  NativePlayer get platform => player;
 
   Future<void> setProperty(String key, String value) async {
     await platform.setProperty(key, value, waitForInitialization: false);
@@ -110,7 +111,7 @@ class NativeVideoController extends PlatformVideoController {
 
   /// {@macro native_video_controller}
   static Future<PlatformVideoController> create(
-    Player player,
+    NativePlayer player,
     VideoControllerConfiguration configuration,
   ) async {
     // Update [configuration] to have default values.
@@ -119,7 +120,7 @@ class NativeVideoController extends PlatformVideoController {
       hwdec: configuration.hwdec ?? 'auto',
     );
 
-    // Retrieve the native handle of the [Player].
+    // Retrieve the native handle of the [NativePlayer].
     final handle = await player.handle;
     // Return the existing [VideoController] if it's already created.
     if (_controllers.containsKey(handle)) {
@@ -130,14 +131,14 @@ class NativeVideoController extends PlatformVideoController {
     // Thus, --vid=no is required to prevent libmpv from trying to decode video (otherwise bad things may happen).
     //
     // Search for common H264 decoder to check if video support is available.
-    final decoders = await queryDecoders(handle);
-    if (!decoders.contains('h264')) {
-      throw UnsupportedError(
-        '[VideoController] is not available.'
-        ' '
-        'Please use media_kit_libs_***_video instead of media_kit_libs_***_audio.',
-      );
-    }
+    // final decoders = await queryDecoders(handle);
+    // if (!decoders.contains('h264')) {
+    //   throw UnsupportedError(
+    //     '[VideoController] is not available.'
+    //     ' '
+    //     'Please use media_kit_libs_***_video instead of media_kit_libs_***_audio.',
+    //   );
+    // }
 
     // Creation:
     final controller = NativeVideoController._(
@@ -145,8 +146,8 @@ class NativeVideoController extends PlatformVideoController {
       configuration,
     );
 
-    // Register [_dispose] for execution upon [Player.dispose].
-    player.platform?.release.add(controller._dispose);
+    // Register [_dispose] for execution upon [NativePlayer.dispose].
+    player.release.add(controller._dispose);
 
     // Store the [NativeVideoController] in the [_controllers].
     _controllers[handle] = controller;

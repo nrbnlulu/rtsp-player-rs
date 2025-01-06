@@ -4,14 +4,14 @@
 /// All rights reserved.
 /// Use of this source code is governed by MIT license that can be found in the LICENSE file.
 
-// A marker interface for accepting both [Media] and [Playlist] in [Player.open].
+// A marker interface for accepting both [Media] and [Playlist] in [NativePlayer.open].
 
 /// {@template playable}
 ///
 /// Playable
 /// --------
 ///
-/// A playable item in [Player]. It can be [Media] or [Playlist].
+/// A playable item in [NativePlayer]. It can be [Media] or [Playlist].
 ///
 /// {@endtemplate}
 abstract class Playable {

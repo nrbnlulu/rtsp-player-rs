@@ -9,7 +9,7 @@
 /// AudioDevice
 /// -----------
 ///
-/// Represents an audio device which may be used for output in [Player].
+/// Represents an audio device which may be used for output in [NativePlayer].
 ///
 /// {@endtemplate}
 class AudioDevice {
