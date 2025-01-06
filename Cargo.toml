@@ -1,6 +1,6 @@
 [workspace]
 
-members = ["example", "rtsp-player-rs", "./flutter_example/my_app/rust"]
+members = ["example", "rtsp-player-rs", "./flutter/rust"]
 
 [workspace.dependencies]
 

@@ -1,0 +1,27 @@
+[package]
+name = "flutter_gstreamer"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+chrono = "0.4.38"
+flutter_rust_bridge = { version = "=2.7.0", features = ["chrono"] }
+futures-util = "0.3.31"
+tokio = { version = "1.41.1", features = ["full"] }
+tokio-util = "0.7.12"
+gst = { workspace = true }
+
+
+[profile.release]
+opt-level = 3
+strip = true
+panic = "abort"
+lto = true
+codegen-units = 1
+
+[profile.dev]
+opt-level = 3
+panic = "abort"
