@@ -4,6 +4,7 @@ targets:
       - lib/src/rust/**
       - $package$
       - lib/$lib$
+      - lib/**/state/** 
 
     builders:
       freezed:

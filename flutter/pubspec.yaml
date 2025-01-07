@@ -32,7 +32,6 @@ dependencies:
   uuid: ^4.5.1
 
 dev_dependencies:
-  build_runner: ^2.4.14
   ffi: ^2.1.0
   ffigen: ^11.0.0
   flutter_test:
@@ -45,6 +44,7 @@ dev_dependencies:
   riverpod_generator: ^2.6.3
   custom_lint: ^0.7.0
   riverpod_lint: ^2.6.3
+  build_runner: ^2.4.14
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
